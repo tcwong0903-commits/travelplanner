@@ -1,0 +1,998 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.3">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="zh-TW"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;旅行記錄 - 工業風旅程規劃&lt;/title&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Tailwind CSS --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- React &amp; ReactDOM --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Babel (轉譯 JSX) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/@babel/standalone/babel.min.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Firebase Compat (適用於單一 HTML 的引入方式) --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"&gt;&lt;/script&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&amp;display=swap');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { font-family: 'Noto Sans TC', sans-serif; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.no-scrollbar::-webkit-scrollbar { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body class="bg-[#f3f4f6]" style="background-image: radial-gradient(#d1d5db 1px, transparent 0); background-size: 20px 20px;"&gt;</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="root"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script type="text/babel"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const { useState, useEffect, useMemo } = React;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Firebase Initialization &amp; Setup</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 若在本地端開啟缺少環境變數，會使用預設的空設定 (僅供介面展示)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>apiKey: "dummy-key",</p>
+<p class="p1"><span class="Apple-converted-space">            </span>authDomain: "dummy-domain.firebaseapp.com",</p>
+<p class="p1"><span class="Apple-converted-space">            </span>projectId: "dummy-project"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!firebase.apps.length) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>firebase.initializeApp(firebaseConfig);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error("Firebase 初始化失敗:", e);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const auth = firebase.auth();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const db = firebase.firestore();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const appId = typeof __app_id !== 'undefined' ? __app_id : 'trip-planner-app';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Firebase Path Helpers</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const getColRef = (colName) =&gt; db.collection('artifacts').doc(appId).collection('public').doc('data').collection(colName);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const getDocRef = (colName, docId) =&gt; getColRef(colName).doc(docId);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// SVGs (替代 Lucide Icons)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Calendar = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;rect width="18" height="18" x="3" y="4" rx="2" ry="2"/&gt;&lt;line x1="16" x2="16" y1="2" y2="6"/&gt;&lt;line x1="8" x2="8" y1="2" y2="6"/&gt;&lt;line x1="3" x2="21" y1="10" y2="10"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const DollarSign = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="12" x2="12" y1="2" y2="22"/&gt;&lt;path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ShoppingBag = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/&gt;&lt;line x1="3" x2="21" y1="6" y2="6"/&gt;&lt;path d="M16 10a4 4 0 0 1-8 0"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Info = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;circle cx="12" cy="12" r="10"/&gt;&lt;line x1="12" x2="12" y1="16" y2="12"/&gt;&lt;line x1="12" x2="12.01" y1="8" y2="8"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Plus = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="12" x2="12" y1="5" y2="19"/&gt;&lt;line x1="5" x2="19" y1="12" y2="12"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ImageIcon = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;rect width="18" height="18" x="3" y="3" rx="2" ry="2"/&gt;&lt;circle cx="9" cy="9" r="2"/&gt;&lt;path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ArrowLeft = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="19" x2="5" y1="12" y2="12"/&gt;&lt;polyline points="12 19 5 12 12 5"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Trash2 = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M3 6h18"/&gt;&lt;path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/&gt;&lt;path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/&gt;&lt;line x1="10" x2="10" y1="11" y2="17"/&gt;&lt;line x1="14" x2="14" y1="11" y2="17"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Edit3 = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M12 20h9"/&gt;&lt;path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Camera = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/&gt;&lt;circle cx="12" cy="13" r="3"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MapPin = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/&gt;&lt;circle cx="12" cy="10" r="3"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const Users = ({size=24, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"&gt;&lt;path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/&gt;&lt;circle cx="9" cy="7" r="4"/&gt;&lt;path d="M22 21v-2a4 4 0 0 0-3-3.87"/&gt;&lt;path d="M16 3.13a4 4 0 0 1 0 7.75"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const X = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="18" x2="6" y1="6" y2="18"/&gt;&lt;line x1="6" x2="18" y1="6" y2="18"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ArrowUp = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="12" x2="12" y1="19" y2="5"/&gt;&lt;polyline points="5 12 12 5 19 12"/&gt;&lt;/svg&gt;;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ArrowDown = ({size=24, strokeWidth=2, className=""}) =&gt; &lt;svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"&gt;&lt;line x1="12" x2="12" y1="5" y2="19"/&gt;&lt;polyline points="19 12 12 19 5 12"/&gt;&lt;/svg&gt;;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// UI Components<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BrutalBox = ({ children, className = '', onClick }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>onClick={onClick}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>className={`border-4 border-black bg-white shadow-[6px_6px_0_0_#000] p-5 mb-6 ${onClick ? 'cursor-pointer active:translate-y-1 active:translate-x-1 active:shadow-[0px_0px_0_0_#000] transition-all' : ''} ${className}`}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{children}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BrutalButton = ({ children, onClick, variant = 'primary', className = '', disabled = false }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const bg = variant === 'primary' ? 'bg-[#4a044e] text-white' :<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                     </span>variant === 'danger' ? 'bg-red-600 text-white' :<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                     </span>'bg-[#e5e5e5] text-black';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>onClick={onClick}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>disabled={disabled}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className={`border-4 border-black font-black p-4 text-lg shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-[0px_0px_0_0_#000] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0 disabled:active:translate-x-0 disabled:active:shadow-[4px_4px_0_0_#000] ${bg} ${className}`}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{children}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BrutalInput = ({ label, type = "text", value, onChange, placeholder, className = "", step }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className={`mb-4 ${className}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{label &amp;&amp; &lt;label className="block font-black text-black mb-1"&gt;{label}&lt;/label&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>type={type}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>step={step}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>value={value}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={onChange}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>placeholder={placeholder}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="w-full border-4 border-black p-3 font-bold focus:outline-none focus:bg-[#f3e8ff] transition-colors"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const BrutalTextarea = ({ label, value, onChange, placeholder, className = "" }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className={`mb-4 ${className}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{label &amp;&amp; &lt;label className="block font-black text-black mb-1"&gt;{label}&lt;/label&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;textarea<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>value={value}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>onChange={onChange}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>placeholder={placeholder}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>rows="3"</p>
+<p class="p1"><span class="Apple-converted-space">              </span>className="w-full border-4 border-black p-3 font-bold focus:outline-none focus:bg-[#f3e8ff] transition-colors resize-none"</p>
+<p class="p1"><span class="Apple-converted-space">            </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const TopNav = ({ title, onBack, rightAction }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="sticky top-0 z-40 bg-[#f3f4f6] border-b-4 border-black p-4 flex items-center justify-between shadow-[0_4px_0_0_#000]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="flex items-center gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{onBack &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onClick={onBack} className="p-2 border-4 border-black bg-white shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;ArrowLeft size={20} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h1 className="font-black text-2xl truncate max-w-[200px]"&gt;{title}&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{rightAction &amp;&amp; rightAction}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Helper Functions</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const getDatesInRange = (startDate, endDate) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const dates = [];</p>
+<p class="p1"><span class="Apple-converted-space">          </span>let currentDate = new Date(startDate);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const end = new Date(endDate);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>while (currentDate &lt;= end) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>dates.push(currentDate.toISOString().split('T')[0]);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentDate.setDate(currentDate.getDate() + 1);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>return dates;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const resizeImage = (file, callback) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const reader = new FileReader();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>reader.onload = (event) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const img = new Image();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>img.onload = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const canvas = document.createElement('canvas');</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const MAX_WIDTH = 600;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>let width = img.width;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>let height = img.height;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (width &gt; MAX_WIDTH) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>height = Math.round((height *= MAX_WIDTH / width));</p>
+<p class="p1"><span class="Apple-converted-space">                </span>width = MAX_WIDTH;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>canvas.width = width;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>canvas.height = height;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const ctx = canvas.getContext('2d');</p>
+<p class="p1"><span class="Apple-converted-space">              </span>ctx.drawImage(img, 0, 0, width, height);</p>
+<p class="p1"><span class="Apple-converted-space">              </span>callback(canvas.toDataURL('image/jpeg', 0.6));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>img.src = event.target.result;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p1"><span class="Apple-converted-space">          </span>reader.readAsDataURL(file);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Modals</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ModalWrapper = ({ children, onClose, title }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="bg-white border-4 border-black w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-[8px_8px_0_0_#4a044e] animate-slide-up sm:animate-none"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="sticky top-0 bg-white border-b-4 border-black p-4 flex justify-between items-center z-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 className="font-black text-2xl uppercase tracking-wider"&gt;{title}&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;button onClick={onClose} className="p-2 bg-red-500 text-white border-4 border-black shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;X size={24} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{children}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const TripModal = ({ trip, onClose, onSave, onDelete }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [name, setName] = useState(trip?.name || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [startDate, setStartDate] = useState(trip?.startDate || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [endDate, setEndDate] = useState(trip?.endDate || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [participantsStr, setParticipantsStr] = useState(trip?.participants?.join(', ') || '');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const handleSave = () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!name || !startDate || !endDate) return alert('請填寫完整資訊');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (new Date(endDate) &lt; new Date(startDate)) return alert('回程日期不能早於出發日期');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const parts = participantsStr.split(/[,，]/).map(s =&gt; s.trim()).filter(Boolean);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onSave({ name, startDate, endDate, participants: parts, updatedAt: Date.now() });</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;ModalWrapper title={trip ? '編輯旅程' : '新增旅程'} onClose={onClose}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalInput label="旅程名稱" value={name} onChange={e =&gt; setName(e.target.value)} placeholder="例如：2026 東京硬派之旅" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalInput label="出發日期" type="date" value={startDate} onChange={e =&gt; setStartDate(e.target.value)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalInput label="回程日期" type="date" value={endDate} onChange={e =&gt; setEndDate(e.target.value)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalTextarea<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>label="同行人 (請用逗號分隔)"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>value={participantsStr}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>onChange={e =&gt; setParticipantsStr(e.target.value)}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>placeholder="小明, 小華, 小美 (後續記帳直接選不需重填)"<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>/&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="mt-8 flex flex-col gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalButton onClick={handleSave}&gt;儲存設定&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{trip &amp;&amp; &lt;BrutalButton variant="danger" onClick={() =&gt; { if(window.confirm("確定刪除整個旅程？")) onDelete(trip.id); }}&gt;刪除旅程&lt;/BrutalButton&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/ModalWrapper&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const EventModal = ({ event, defaultDate, tripId, dayEvents, onClose }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [date, setDate] = useState(event?.date || defaultDate);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [time, setTime] = useState(event?.time || '10:00');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [title, setTitle] = useState(event?.title || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [location, setLocation] = useState(event?.location || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [notes, setNotes] = useState(event?.notes || '');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const handleSave = async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!title || !time || !date) return alert('請填寫必填欄位');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const orderIndex = event?.orderIndex !== undefined ? event.orderIndex : dayEvents?.length || 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = { tripId, date, time, title, location, notes, orderIndex, updatedAt: Date.now() };</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (event) {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>await getDocRef('trip_events', event.id).update(data);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>await getColRef('trip_events').add(data);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error("無法儲存行程，請確認 Firebase 設定", e);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>alert("無法連線至資料庫");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onClose();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;ModalWrapper title={event ? '編輯行程' : '新增行程'} onClose={onClose}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalInput label="日期 *" type="date" value={date} onChange={e =&gt; setDate(e.target.value)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalInput label="時間 *" type="time" value={time} onChange={e =&gt; setTime(e.target.value)} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalInput label="行程標題 *" value={title} onChange={e =&gt; setTitle(e.target.value)} placeholder="例如：築地市場吃壽司" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalInput label="地點" value={location} onChange={e =&gt; setLocation(e.target.value)} placeholder="搜尋或輸入地址..." /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalTextarea label="備註" value={notes} onChange={e =&gt; setNotes(e.target.value)} placeholder="必吃名單、訂位代號等..." /&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="mt-8 flex flex-col gap-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalButton onClick={handleSave}&gt;儲存行程&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/ModalWrapper&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const ExpenseModal = ({ trip, onClose }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tripParts = trip?.participants || [];</p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [title, setTitle] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [amount, setAmount] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [currency, setCurrency] = useState('JPY');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [rate, setRate] = useState('0.052');<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [payer, setPayer] = useState(tripParts[0] || '');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [selectedParts, setSelectedParts] = useState(tripParts);<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const handleSave = async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!title || !amount || !payer || selectedParts.length === 0) return alert('請填寫完整或選擇分攤者');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>tripId: trip.id, title,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>amount: parseFloat(amount), currency, rate: parseFloat(rate),<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>payer, participants: selectedParts, settled: [], createdAt: Date.now()</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>await getColRef('trip_expenses').add(data);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error("無法儲存帳目", e);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>alert("無法連線至資料庫");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onClose();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const togglePart = (p) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (selectedParts.includes(p)) setSelectedParts(selectedParts.filter(x =&gt; x !== p));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>else setSelectedParts([...selectedParts, p]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;ModalWrapper title="新增帳目" onClose={onClose}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalInput label="項目名稱 *" value={title} onChange={e =&gt; setTitle(e.target.value)} placeholder="例如：晚餐烤肉" /&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="border-4 border-black p-4 bg-[#f3e8ff] mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h4 className="font-black mb-3"&gt;金額與匯率&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="grid grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;BrutalInput label="幣別" value={currency} onChange={e =&gt; setCurrency(e.target.value)} placeholder="JPY, TWD..." className="!mb-0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;BrutalInput label={`換港幣(HKD)匯率`} type="number" step="0.001" value={rate} onChange={e =&gt; setRate(e.target.value)} className="!mb-0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="mt-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;BrutalInput label="花費金額 (當地貨幣) *" type="number" value={amount} onChange={e =&gt; setAmount(e.target.value)} placeholder="10000" className="!mb-0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{amount &amp;&amp; rate &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="mt-2 text-right font-bold text-purple-900"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>約合 HKD ${(parseFloat(amount) * parseFloat(rate)).toFixed(2)}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="border-4 border-black p-4 bg-gray-100 mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h4 className="font-black mb-3"&gt;&lt;Users className="inline" size={18}/&gt; 分帳設定 (點選切換)&lt;/h4&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block font-black text-black mb-2"&gt;誰先付款的？ *&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{tripParts.length &gt; 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="flex flex-wrap gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{tripParts.map(p =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                          </span>key={p} onClick={() =&gt; setPayer(p)}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>className={`px-3 py-2 border-2 border-black font-black transition-all ${payer === p ? 'bg-black text-white shadow-none translate-y-0.5 translate-x-0.5' : 'bg-white shadow-[2px_2px_0_0_#000]'}`}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>{p}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                     </span>&lt;BrutalInput value={payer} onChange={e =&gt; setPayer(e.target.value)} placeholder="輸入名字" className="!mb-0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;label className="block font-black text-black mb-2"&gt;參與分攤的人 *&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{tripParts.length &gt; 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="flex flex-wrap gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{tripParts.map(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>const isSelected = selectedParts.includes(p);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                            </span>key={p} onClick={() =&gt; togglePart(p)}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>className={`px-3 py-2 border-2 border-black font-black flex items-center gap-1 transition-all ${isSelected ? 'bg-[#4a044e] text-white shadow-none translate-y-0.5 translate-x-0.5' : 'bg-white shadow-[2px_2px_0_0_#000]'}`}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{isSelected ? '☑' : '☐'} {p}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="text-sm font-bold text-red-600"&gt;請先在「編輯旅程」中設定同行人名單，即可啟用快速點選功能！&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalButton onClick={handleSave} className="w-full bg-green-700"&gt;儲存帳目&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/ModalWrapper&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const NoteModal = ({ tripId, type, onClose }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [title, setTitle] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [notes, setNotes] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [photoData, setPhotoData] = useState(null);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const handleSave = async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!title) return alert('請填寫標題');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const data = { tripId, type, title, notes, photoData, createdAt: Date.now() };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>await getColRef('trip_notes').add(data);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.error(e);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>onClose();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const handleFile = (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const file = e.target.files[0];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (file) resizeImage(file, (base64) =&gt; setPhotoData(base64));</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;ModalWrapper title={type === 'shopping' ? '新增必買項目' : '新增重要資料'} onClose={onClose}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalInput label="標題 *" value={title} onChange={e =&gt; setTitle(e.target.value)} placeholder="例如：大正感冒藥" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalTextarea label="備註內容" value={notes} onChange={e =&gt; setNotes(e.target.value)} placeholder="價格、數量、哪裡買..." /&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="mb-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;label className="block font-black text-black mb-2"&gt;附加照片&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="border-4 border-black border-dashed p-4 text-center hover:bg-gray-100 transition-colors relative cursor-pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;input type="file" accept="image/*" onChange={handleFile} className="absolute inset-0 opacity-0 cursor-pointer z-10" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>{photoData ? (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;img src={photoData} alt="Preview" className="mx-auto max-h-40 object-contain border-2 border-black shadow-[4px_4px_0_0_#000]" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="py-4 text-gray-500 font-bold flex flex-col items-center gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;Camera size={32} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>點擊上傳或拍攝照片</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalButton onClick={handleSave} className="w-full bg-[#4a044e]"&gt;儲存&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/ModalWrapper&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Sub-Views (Tabs)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const TimelineTab = ({ trip, events }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const dates = useMemo(() =&gt; getDatesInRange(trip.startDate, trip.endDate), [trip.startDate, trip.endDate]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [selectedDate, setSelectedDate] = useState(dates[0] || trip.startDate);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [isEventModalOpen, setIsEventModalOpen] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [editingEvent, setEditingEvent] = useState(null);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const dayEvents = events.filter(e =&gt; e.date === selectedDate).sort((a, b) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (a.orderIndex !== undefined &amp;&amp; b.orderIndex !== undefined) return a.orderIndex - b.orderIndex;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return a.time.localeCompare(b.time);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const moveEvent = async (index, direction) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (direction === 'up' &amp;&amp; index === 0) return;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (direction === 'down' &amp;&amp; index === dayEvents.length - 1) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newOrder = [...dayEvents];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const swapIdx = direction === 'up' ? index - 1 : index + 1;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>[newOrder[index], newOrder[swapIdx]] = [newOrder[swapIdx], newOrder[index]];</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const updates = newOrder.map((ev, i) =&gt;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>getDocRef('trip_events', ev.id).update({ orderIndex: i })</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>await Promise.all(updates);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const deleteEvent = async (id) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (window.confirm("確定要刪除這個行程嗎？")) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>await getDocRef('trip_events', id).delete();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="pb-20"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex overflow-x-auto no-scrollbar gap-3 pb-4 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{dates.map((date, idx) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const isSelected = date === selectedDate;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const dayName = new Date(date).toLocaleDateString('zh-TW', { weekday: 'short' });</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>key={date}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>onClick={() =&gt; setSelectedDate(date)}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>className={`flex-shrink-0 border-4 border-black px-4 py-2 font-black flex flex-col items-center justify-center shadow-[4px_4px_0_0_#000] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all ${isSelected ? 'bg-black text-white shadow-none translate-y-1 translate-x-1' : 'bg-white text-black'}`}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;span className="text-sm"&gt;Day {idx + 1}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;span className="text-lg"&gt;{date.slice(5)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;span className="text-xs"&gt;{dayName}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="ml-4 border-l-4 border-black pl-6 relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{dayEvents.length === 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="text-gray-500 font-bold py-6"&gt;這天還沒有安排行程。&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>dayEvents.map((event, idx) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div key={event.id} className="mb-8 relative group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;div className="absolute -left-[38px] top-1 w-6 h-6 bg-[#4a044e] border-4 border-black rounded-full z-10"&gt;&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                      </span></p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;BrutalBox<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>className="mb-0 group-hover:-translate-y-1 group-hover:-translate-x-1 transition-transform relative"</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>onClick={() =&gt; { setEditingEvent(event); setIsEventModalOpen(true); }}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="flex justify-between items-start mb-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="font-black text-xl bg-[#e5e5e5] px-2 py-1 border-2 border-black inline-block"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{event.time}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="flex items-center gap-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={(e) =&gt; { e.stopPropagation(); moveEvent(idx, 'up'); }}</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>disabled={idx === 0}</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="p-1.5 border-2 border-black bg-white hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-white transition-colors"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;ArrowUp size={18} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={(e) =&gt; { e.stopPropagation(); moveEvent(idx, 'down'); }}</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>disabled={idx === dayEvents.length - 1}</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="p-1.5 border-2 border-black bg-white hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-white transition-colors"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;ArrowDown size={18} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                              </span>onClick={(e) =&gt; { e.stopPropagation(); deleteEvent(event.id); }}</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>className="p-1.5 border-2 border-black bg-red-100 text-red-600 hover:bg-red-200 transition-colors ml-2"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>&lt;Trash2 size={18} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 className="font-black text-2xl mb-1"&gt;{event.title}&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>{event.location &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="flex items-center gap-1 font-bold text-gray-700 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;MapPin size={16} /&gt; {event.location}</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>{event.notes &amp;&amp; &lt;p className="font-bold text-gray-600 bg-gray-50 p-2 border-2 border-black"&gt;{event.notes}&lt;/p&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/BrutalBox&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>))</p>
+<p class="p1"><span class="Apple-converted-space">                </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalButton onClick={() =&gt; { setEditingEvent(null); setIsEventModalOpen(true); }} className="w-full text-xl py-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Plus strokeWidth={4} /&gt; 新增行程</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{isEventModalOpen &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;EventModal<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>event={editingEvent}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>defaultDate={selectedDate}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>tripId={trip.id}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>dayEvents={dayEvents}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClose={() =&gt; setIsEventModalOpen(false)}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const LedgerTab = ({ trip, expenses }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const summary = useMemo(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const balances = {};<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let totalHKD = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>expenses.forEach(exp =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const expTotalHKD = parseFloat(exp.amount) * parseFloat(exp.rate);</p>
+<p class="p1"><span class="Apple-converted-space">              </span>totalHKD += expTotalHKD;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>const parts = exp.participants || [];</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const numParts = parts.length;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (numParts === 0) return;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>const perPerson = expTotalHKD / numParts;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const settled = exp.settled || [];<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>parts.forEach(p =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (p !== exp.payer &amp;&amp; !settled.includes(p)) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>balances[exp.payer] = (balances[exp.payer] || 0) + perPerson;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>balances[p] = (balances[p] || 0) - perPerson;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const debtors = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const creditors = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (const [person, balance] of Object.entries(balances)) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (balance &lt; -0.01) debtors.push({ person, amount: -balance });</p>
+<p class="p1"><span class="Apple-converted-space">              </span>else if (balance &gt; 0.01) creditors.push({ person, amount: balance });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const settlements = [];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let i = 0, j = 0;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>while (i &lt; debtors.length &amp;&amp; j &lt; creditors.length) {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const debtor = debtors[i];</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const creditor = creditors[j];</p>
+<p class="p1"><span class="Apple-converted-space">              </span>const amount = Math.min(debtor.amount, creditor.amount);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>settlements.push({ from: debtor.person, to: creditor.person, amount });</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>debtor.amount -= amount;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>creditor.amount -= amount;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (debtor.amount &lt; 0.01) i++;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (creditor.amount &lt; 0.01) j++;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>return { totalHKD, balances, settlements };</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}, [expenses]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const toggleSettled = async (expId, person, currentlySettled, currentSettledList) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const newSettled = currentlySettled<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>? currentSettledList.filter(p =&gt; p !== person)<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>: [...currentSettledList, person];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>await getDocRef('trip_expenses', expId).update({ settled: newSettled });</p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="pb-20"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalBox className="bg-black text-white !border-white shadow-[6px_6px_0_0_#4a044e]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 className="font-black text-xl mb-4 flex items-center gap-2"&gt;&lt;DollarSign size={24} /&gt; 結算總覽 (HKD)&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="font-bold mb-4"&gt;累積總花費: ${summary.totalHKD.toFixed(2)}&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>{summary.settlements.length &gt; 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="bg-white text-black p-4 border-4 border-black shadow-[4px_4px_0_0_#e5e5e5]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h3 className="font-black text-lg mb-2"&gt;誰還欠誰多少：&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;ul className="space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{summary.settlements.map((s, idx) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;li key={idx} className="flex justify-between font-bold items-center border-b-2 border-dashed border-gray-400 pb-2 last:border-0 last:pb-0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className="text-red-600"&gt;{s.from}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className="bg-[#4a044e] text-white px-2 py-0.5 border-2 border-black"&gt;應給&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className="text-green-700"&gt;{s.to}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;span className="font-black text-lg"&gt;${s.amount.toFixed(1)}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/ul&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="font-bold text-gray-300"&gt;目前所有帳目已結清或無債務關係！&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/BrutalBox&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h3 className="font-black text-xl mt-8 mb-4 border-l-8 border-[#4a044e] pl-3"&gt;所有帳目&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{expenses.length === 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="text-center p-6 font-bold text-gray-500 border-4 border-dashed border-black"&gt;尚無帳目記錄&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>expenses.sort((a,b) =&gt; b.createdAt - a.createdAt).map(exp =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const settled = exp.settled || [];</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>const debtors = exp.participants?.filter(p =&gt; p !== exp.payer) || [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;BrutalBox key={exp.id} className="!p-4 relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>onClick={() =&gt; { if(window.confirm("刪除這筆帳目？")) getDocRef('trip_expenses', exp.id).delete(); }}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>className="absolute top-2 right-2 p-2 bg-red-100 text-red-600 border-2 border-black active:translate-y-0.5 active:translate-x-0.5 transition-all"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;Trash2 size={16} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/button&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                      </span></p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;div className="flex justify-between items-start mb-2 pr-10"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h4 className="font-black text-lg"&gt;{exp.title}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="text-right"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="font-black text-xl"&gt;{exp.currency} {exp.amount}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="text-xs font-bold text-gray-500"&gt;(≈ HKD {(exp.amount * exp.rate).toFixed(1)})&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                      </span></p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;div className="bg-gray-100 p-3 border-2 border-black font-bold text-sm mt-3"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="mb-2"&gt;&lt;span className="text-gray-600"&gt;付款人：&lt;/span&gt; &lt;span className="bg-black text-white px-2 py-1"&gt;{exp.payer}&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">                        </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>{debtors.length &gt; 0 &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;div className="mt-3 pt-3 border-t-2 border-dashed border-gray-400"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div className="text-gray-600 mb-2"&gt;分攤狀態 (點擊切換)：&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;div className="flex flex-wrap gap-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>{debtors.map(d =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const isSettled = settled.includes(d);</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>key={d}</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>onClick={() =&gt; toggleSettled(exp.id, d, isSettled, settled)}</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>className={`px-2 py-1 border-2 border-black font-black flex items-center gap-1 transition-colors ${isSettled ? 'bg-green-500 text-white shadow-none translate-y-0.5 translate-x-0.5' : 'bg-white shadow-[2px_2px_0_0_#000] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none'}`}</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>{isSettled ? '✅ 已付' : '❌ 未付'} - {d}</p>
+<p class="p1"><span class="Apple-converted-space">                                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                              </span>})}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/BrutalBox&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>})</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalButton onClick={() =&gt; setIsExpenseModalOpen(true)} className="w-full text-xl py-4 bg-green-700"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Plus strokeWidth={4} /&gt; 新增帳目</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{isExpenseModalOpen &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;ExpenseModal<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>trip={trip}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClose={() =&gt; setIsExpenseModalOpen(false)}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const MediaListTab = ({ trip, items, type }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [isModalOpen, setIsModalOpen] = useState(false);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="pb-20"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="grid grid-cols-1 md:grid-cols-2 gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{items.length === 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;div className="col-span-full text-center p-8 font-bold text-gray-500 border-4 border-dashed border-black"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>目前沒有任何{type === 'shopping' ? '必買清單' : '重要資料'}。</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>items.map(item =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;BrutalBox key={item.id} className="!p-0 overflow-hidden relative group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;button<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>onClick={() =&gt; getDocRef('trip_notes', item.id).delete() }</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>className="absolute top-2 right-2 p-2 bg-red-600 text-white border-2 border-black active:translate-y-0.5 active:translate-x-0.5 transition-all z-10"</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;Trash2 size={16} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>{item.photoData ? (</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="h-48 border-b-4 border-black relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;img src={item.photoData} alt={item.title} className="w-full h-full object-cover" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="h-24 bg-[#e5e5e5] border-b-4 border-black flex items-center justify-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                          </span>&lt;ImageIcon className="text-gray-400" size={40} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;div className="p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;h3 className="font-black text-xl mb-2"&gt;{item.title}&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>{item.notes &amp;&amp; &lt;p className="font-bold text-gray-700 whitespace-pre-wrap"&gt;{item.notes}&lt;/p&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/BrutalBox&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>))</p>
+<p class="p1"><span class="Apple-converted-space">                </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalButton onClick={() =&gt; setIsModalOpen(true)} className="w-full text-xl py-4 bg-[#4a044e]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;Plus strokeWidth={4} /&gt; 新增{type === 'shopping' ? '必買項目' : '重要資料'}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{isModalOpen &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;NoteModal<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>tripId={trip.id}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>type={type}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClose={() =&gt; setIsModalOpen(false)}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Main Views</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const HomeView = ({ trips, onOpenTrip, onAddTrip }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="p-6 pt-12 pb-8 bg-black text-white shadow-[0_8px_0_0_#4a044e]"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;h1 className="text-4xl font-black mb-2 tracking-widest"&gt;旅行記錄&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;p className="font-bold text-[#e5e5e5]"&gt;你的工業風硬派旅程雜誌&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="p-4 mt-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{trips.length === 0 ? (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="text-center p-10 font-black text-gray-500 border-4 border-dashed border-gray-400 bg-white"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>目前沒有任何旅程。&lt;br/&gt;點擊下方按鈕開始規劃！</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>) : (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>trips.sort((a,b) =&gt; new Date(a.startDate) - new Date(b.startDate)).map(trip =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;BrutalBox key={trip.id} onClick={() =&gt; onOpenTrip(trip.id)} className="relative overflow-hidden group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="absolute top-0 right-0 bg-[#4a044e] text-white font-black px-3 py-1 border-b-4 border-l-4 border-black translate-x-1 -translate-y-1 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>GO!</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2 className="text-2xl font-black mb-2 pr-12"&gt;{trip.name}&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="flex items-center gap-2 font-bold text-gray-700 bg-gray-100 p-2 border-2 border-black inline-flex"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;Calendar size={16} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;span&gt;{trip.startDate} ~ {trip.endDate}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{trip.participants &amp;&amp; trip.participants.length &gt; 0 &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;div className="mt-3 flex gap-1 flex-wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>{trip.participants.map(p =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                           </span>&lt;span key={p} className="text-xs font-bold border-2 border-black px-1.5 py-0.5 bg-white"&gt;{p}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">                      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/BrutalBox&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>))</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;BrutalButton onClick={onAddTrip} className="w-full text-xl py-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;Plus strokeWidth={4} /&gt; 新增旅程</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/BrutalButton&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const TripView = ({ trip, events, expenses, shopping, info, subView, setSubView, onBack, onEditTrip }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tabs = [</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ id: 'timeline', icon: &lt;MapPin size={20} /&gt;, label: '行程' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ id: 'ledger', icon: &lt;DollarSign size={20} /&gt;, label: '記帳' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ id: 'shopping', icon: &lt;ShoppingBag size={20} /&gt;, label: '必買' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{ id: 'info', icon: &lt;Info size={20} /&gt;, label: '資料' }</p>
+<p class="p1"><span class="Apple-converted-space">          </span>];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;TopNav<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>title={trip.name}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>onBack={onBack}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>rightAction={</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button onClick={onEditTrip} className="p-2 border-4 border-black bg-white shadow-[2px_2px_0_0_#000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;Edit3 size={20} strokeWidth={3} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>/&gt;</p>
+<p class="p2"><span class="Apple-converted-space">              </span></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="flex overflow-x-auto no-scrollbar border-b-4 border-black bg-white sticky top-[76px] z-30"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{tabs.map(tab =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;button</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>key={tab.id}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onClick={() =&gt; setSubView(tab.id)}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>className={`flex-1 flex items-center justify-center gap-2 py-4 px-2 font-black whitespace-nowrap border-r-4 border-black last:border-r-0 transition-colors ${subView === tab.id ? 'bg-[#4a044e] text-white' : 'bg-white text-black hover:bg-gray-100'}`}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{tab.icon} {tab.label}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{subView === 'timeline' &amp;&amp; &lt;TimelineTab trip={trip} events={events} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{subView === 'ledger' &amp;&amp; &lt;LedgerTab trip={trip} expenses={expenses} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{subView === 'shopping' &amp;&amp; &lt;MediaListTab trip={trip} items={shopping} type="shopping" /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{subView === 'info' &amp;&amp; &lt;MediaListTab trip={trip} items={info} type="info" /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Main Application Root</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// ==========================================</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function App() {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [user, setUser] = useState(null);</p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [trips, setTrips] = useState([]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [events, setEvents] = useState([]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [expenses, setExpenses] = useState([]);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [notes, setNotes] = useState([]);<span class="Apple-converted-space"> </span></p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [currentView, setCurrentView] = useState('home');<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [currentTripId, setCurrentTripId] = useState(null);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [tripSubView, setTripSubView] = useState('timeline');<span class="Apple-converted-space"> </span></p>
+<p class="p2"><span class="Apple-converted-space">          </span></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [isTripModalOpen, setIsTripModalOpen] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const [editingTrip, setEditingTrip] = useState(null);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const initAuth = async () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>if (typeof __initial_auth_token !== 'undefined' &amp;&amp; __initial_auth_token) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>await auth.signInWithCustomToken(__initial_auth_token);</p>
+<p class="p1"><span class="Apple-converted-space">              </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>await auth.signInAnonymously();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} catch(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>console.log("登入被略過（通常發生在沒有設定 Firebase Config 的本機環境）");</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>setUser({ uid: "local-dummy-user" });</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">              </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>};</p>
+<p class="p1"><span class="Apple-converted-space">            </span>initAuth();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const unsubscribe = auth.onAuthStateChanged((u) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(u) setUser(u);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return () =&gt; unsubscribe();</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}, []);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>useEffect(() =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (!user) return;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const unsubTrips = getColRef('trips').onSnapshot((snap) =&gt; setTrips(snap.docs.map(d =&gt; ({ id: d.id, ...d.data() }))), console.error);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const unsubEvents = getColRef('trip_events').onSnapshot((snap) =&gt; setEvents(snap.docs.map(d =&gt; ({ id: d.id, ...d.data() }))), console.error);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const unsubExpenses = getColRef('trip_expenses').onSnapshot((snap) =&gt; setExpenses(snap.docs.map(d =&gt; ({ id: d.id, ...d.data() }))), console.error);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const unsubNotes = getColRef('trip_notes').onSnapshot((snap) =&gt; setNotes(snap.docs.map(d =&gt; ({ id: d.id, ...d.data() }))), console.error);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>return () =&gt; { unsubTrips(); unsubEvents(); unsubExpenses(); unsubNotes(); };</p>
+<p class="p1"><span class="Apple-converted-space">            </span>} catch(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>console.warn("Firebase 監聽器啟動失敗，請確認已設定環境變數");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}, [user]);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const currentTrip = trips.find(t =&gt; t.id === currentTripId);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tripEvents = events.filter(e =&gt; e.tripId === currentTripId);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tripExpenses = expenses.filter(e =&gt; e.tripId === currentTripId);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tripShopping = notes.filter(n =&gt; n.tripId === currentTripId &amp;&amp; n.type === 'shopping');</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const tripInfo = notes.filter(n =&gt; n.tripId === currentTripId &amp;&amp; n.type === 'info');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (!user) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div className="min-h-screen bg-[#f3f4f6] flex items-center justify-center p-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;BrutalBox className="text-center font-black text-xl animate-pulse"&gt;載入工業核心...&lt;/BrutalBox&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="min-h-screen text-black font-sans pb-28 relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>{currentView === 'home' &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;HomeView<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>trips={trips}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onOpenTrip={(id) =&gt; { setCurrentTripId(id); setCurrentView('trip'); setTripSubView('timeline'); }}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onAddTrip={() =&gt; { setEditingTrip(null); setIsTripModalOpen(true); }}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{currentView === 'trip' &amp;&amp; currentTrip &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;TripView<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>trip={currentTrip}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>events={tripEvents}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>expenses={tripExpenses}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>shopping={tripShopping}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>info={tripInfo}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>subView={tripSubView}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>setSubView={setTripSubView}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onBack={() =&gt; { setCurrentView('home'); setCurrentTripId(null); }}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onEditTrip={() =&gt; { setEditingTrip(currentTrip); setIsTripModalOpen(true); }}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">              </span>{isTripModalOpen &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;TripModal<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>trip={editingTrip}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onClose={() =&gt; setIsTripModalOpen(false)}<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onSave={async (data) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (editingTrip) await getDocRef('trips', editingTrip.id).update(data);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>else await getColRef('trips').add(data);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>setIsTripModalOpen(false);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} catch(e) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>console.error(e);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>alert("無法儲存，請確認資料庫設定");</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>onDelete={async (id) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>await getDocRef('trips', id).delete();</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>setIsTripModalOpen(false);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (currentTripId === id) setCurrentView('home');</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} catch (e) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>console.error(e);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>alert("無法刪除，請確認資料庫設定");</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                  </span>}}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// 渲染 React 應用</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const root = ReactDOM.createRoot(document.getElementById('root'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>root.render(&lt;App /&gt;);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
